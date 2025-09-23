@@ -33,6 +33,11 @@
     ```
 
 ------------------------------------------------------------------------
+## All bits set (visited all states)
+```python
+if mask == (1 << T) - 1:
+    return 1
+```
 
 ## Submask Enumeration Trick
 
