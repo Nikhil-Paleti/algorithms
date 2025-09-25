@@ -1,4 +1,4 @@
-# Dijkstra’s Algorithm & Bellman–Ford Algorithm — Notes
+# Single-Source Shortest Path Algorithms — Notes
 
 ## 1. Dijkstra’s Algorithm
 
@@ -117,83 +117,112 @@ def bellman_ford(n, edges, source):
 
 ---
 
-## 3. Dijkstra vs Bellman–Ford
+## 3. Shortest Path Faster Algorithm (SPFA)
 
-| Feature            | Dijkstra                   | Bellman–Ford              |
-|--------------------|---------------------------|---------------------------|
-| Edge weights       | Non-negative only          | Negative allowed          |
-| Negative cycles    | Not detectable             | Detects negative cycles   |
-| Time complexity    | O((V+E) log V) (with heap)| O(V * E)                 |
-| Space complexity   | O(V + E)                  | O(V)                     |
-| Graph density      | Works best for sparse      | Works, but slower         |
+### Purpose
+An optimization of the **Bellman–Ford algorithm** for single-source shortest paths.  
+It uses a **queue** to process only the vertices that could potentially improve their neighbors, rather than blindly relaxing all edges `V-1` times.
+
+### Core Idea
+- Initialize distances like Bellman–Ford.
+- Put the source into a queue.
+- While queue is not empty:
+  - Pop a vertex `u`.
+  - For each edge `(u, v, w)`:
+    - If `dist[v] > dist[u] + w`, update `dist[v]`.
+    - If `v` is not in the queue, push it.
+
+This often reduces unnecessary relaxations in practice.
+
+### Python Implementation
+```python
+from collections import deque
+from typing import List, Tuple
+
+def spfa(n: int, edges: List[Tuple[int, int, float]], source: int):
+    INF = float("inf")
+    dist = [INF] * n
+    in_queue = [False] * n
+    count = [0] * n  # number of times each node was relaxed (for cycle detection)
+
+    graph = [[] for _ in range(n)]
+    for u, v, w in edges:
+        graph[u].append((v, w))
+
+    dist[source] = 0
+    q = deque([source])
+    in_queue[source] = True
+
+    while q:
+        u = q.popleft()
+        in_queue[u] = False
+        for v, w in graph[u]:
+            if dist[v] > dist[u] + w:
+                dist[v] = dist[u] + w
+                count[v] += 1
+                if count[v] >= n:
+                    return None, True  # negative cycle detected
+                if not in_queue[v]:
+                    q.append(v)
+                    in_queue[v] = True
+
+    return dist, False
+```
+
+### Complexity
+- **Worst case:** O(V * E) (same as Bellman–Ford).
+- **Average case (on many sparse graphs):** close to O(E) in practice.
+- **Space:** O(V + E).
+
+### Limitations
+- SPFA can degrade to **O(V * E)** in adversarial graphs (especially dense graphs or those with many negative edges).
+- Same as Bellman–Ford, cannot produce valid shortest paths in the presence of negative cycles.
+
+### Typical Problems
+- Used as a practical improvement over Bellman–Ford in many real-world routing systems.
+- Detecting negative cycles while being faster in sparse cases.
+- Still relevant in competitive programming (though considered “unsafe” in worst-case constraints).
+
+### Key Takeaways
+- SPFA is a **queue-based improvement** over Bellman–Ford.
+- Faster in many real-world cases (especially sparse graphs).
+- Worst-case time is still **O(V * E)**, so it’s not strictly better in theory.
 
 ---
 
-## 4. Types of Problems & Applications
+## 4. Dijkstra vs Bellman–Ford vs SPFA
 
-### For Dijkstra
-- Network routing protocols (OSPF, shortest paths in IP routing).
-- GPS navigation, road networks.
-- Any non-negative weighted shortest path problem.
-
-### For Bellman–Ford
-- Detecting **negative cycles** (arbitrage detection in currency exchange).
-- General shortest paths when weights may be negative.
-- Used in distance-vector routing protocols (like RIP).
-
-### Problem Variants
-- **Shortest path queries**: from single source to all nodes.
-- **Path reconstruction**: keep parent pointers.
-- **Negative cycle detection**: Bellman–Ford specific.
-- **All-pairs shortest path**: run Dijkstra from every node (if no negatives) or use Floyd–Warshall.
-- **Special constraints**: e.g., limit on number of edges → Bellman–Ford naturally handles this (DP style).
+| Feature            | Dijkstra                   | Bellman–Ford              | SPFA (queue-based)       |
+|--------------------|---------------------------|---------------------------|--------------------------|
+| Edge weights       | Non-negative only          | Negative allowed          | Negative allowed         |
+| Negative cycles    | Not detectable             | Detects negative cycles   | Detects negative cycles  |
+| Time complexity    | O((V+E) log V) (with heap)| O(V * E)                 | O(V * E) worst, ~O(E) avg|
+| Space complexity   | O(V + E)                  | O(V)                     | O(V + E)                 |
+| Graph density      | Works best for sparse      | Works, but slower         | Best for sparse (avg)    |
 
 ---
 
-## 5. Key Takeaways
-- Use **Dijkstra** when all edges are non-negative and performance matters.
-- Use **Bellman–Ford** when negative edges exist, or when negative cycle detection is required.
-- Both are **single-source shortest path algorithms**, but with different strengths.
-- Bellman–Ford is more general but slower; Dijkstra is faster but limited.
+## 5. Negative Cycle Detection and Retrieval (Bellman–Ford Variant)
 
----
-
-# Negative Cycle Detection and Retrieval (Bellman–Ford Variant)
-
-## 1. Idea
-
+### Idea
 We want not only to detect a negative cycle but also to **return the actual cycle**.  
 This is a standard extension of the Bellman–Ford algorithm.
 
 Steps:
-
 1. Add a **virtual source** with 0-weight edges to every node.  
    → ensures we can detect cycles in any component of the graph.
-
 2. Run Bellman–Ford for `V` passes (instead of `V-1`).  
    - If any edge relaxes on the `V`-th pass, the updated vertex `x` is on or can reach a negative cycle.
-
 3. From that vertex, move back `V` times using parent pointers.  
    - This guarantees that you land **inside the cycle** (not just near it).
-
 4. From that node, walk parent pointers until you return to the start.  
    - This sequence of nodes is a negative cycle.
 
----
-
-## 2. Python Implementation
-
+### Python Implementation
 ```python
 from typing import List, Tuple, Optional
 
 def find_negative_cycle(n: int, edges: List[Tuple[int, int, float]]) -> Optional[List[int]]:
-    """
-    Find and return one negative cycle as a list of vertices in order.
-    Graph is directed. Vertices are 0..n-1.
-    Edges: list of (u, v, w).
-    Returns: list of vertices forming a cycle [u0, u1, ..., uk-1, u0],
-             or None if no negative cycle exists.
-    """
     INF = float('inf')
     dist = [0.0] * n          # start with 0 for all, simulating a super-source
     parent = [-1] * n
@@ -230,3 +259,37 @@ def find_negative_cycle(n: int, edges: List[Tuple[int, int, float]]) -> Optional
 
     cycle.reverse()
     return cycle
+```
+
+### Example
+```python
+# Graph with a negative cycle: 0 -> 1 -> 2 -> 0 with total weight -3
+n = 3
+edges = [
+    (0, 1, 1),
+    (1, 2, 1),
+    (2, 0, -5)
+]
+
+cycle = find_negative_cycle(n, edges)
+print(cycle)  # Output: [0, 1, 2]
+```
+
+This corresponds to the negative cycle **0 → 1 → 2 → 0**.
+
+### Complexity
+- **Time Complexity:** O(V * E) (same as Bellman–Ford).
+- **Space Complexity:** O(V).
+
+### Notes and Extensions
+- Works for **directed graphs**.  
+- Returns **one** negative cycle. Enumerating *all* negative cycles is more complex.
+- If you want **edges** instead of vertices: collect `(parent[v], v)` while reconstructing.
+- Distances to nodes reachable from a negative cycle are effectively **-∞**, so shortest paths aren’t well-defined.
+
+### Applications
+- **Currency arbitrage:** detect cycles in exchange-rate graphs where the product of exchange rates < 1.
+- **Constraint systems:** detect infeasible systems of difference constraints.
+- **Optimization:** check whether cost functions can be decreased indefinitely.
+
+---
