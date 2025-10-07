@@ -77,6 +77,13 @@ def bisect_right(a, x, lo=0, hi=None):
 
 ---
 
+## things to know 
+
+for bisect_left and bisect_right:
+
+- if searching for "high" element -> hi = n-1
+- if searching for "low" element -> hi = n
+
 ## 🔹 Edge Case Behavior
 
 ### `bisect_left(nums, target)` can return:
