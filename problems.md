@@ -108,6 +108,7 @@
 6. https://leetcode.com/problems/backspace-string-compare/ - 844
 7. https://leetcode.com/problems/evaluate-reverse-polish-notation/ - 150
 8. https://leetcode.com/problems/min-stack/ - 155 
+9. https://leetcode.com/problems/asteroid-collision/ - 735 
 
 ## Monotonic Stack
 1. https://leetcode.com/problems/daily-temperatures/ - 739
@@ -150,6 +151,7 @@
 12. https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/ - 153
 13. https://leetcode.com/problems/find-peak-element/ - 162
 14. https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/ - 167 - new p
+15. https://leetcode.com/problems/search-suggestions-system/ - 1268 - can also trie it
 
 ## bisect left 
 1. https://leetcode.com/problems/first-bad-version/
@@ -251,6 +253,7 @@
 2. https://leetcode.com/problems/open-the-lock/ - 752
 3. https://leetcode.com/problems/shortest-path-in-binary-matrix/ - 1091
 4. https://leetcode.com/problems/word-ladder/ - 127 - string
+5. https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination - 1293 - kinda dp
 
 ## multi source BFS
 1. https://leetcode.com/problems/walls-and-gates/ 
@@ -299,6 +302,7 @@
 19. https://leetcode.com/problems/word-break/ - 139
 20. https://leetcode.com/problems/maximum-product-subarray/ - 152 - kadane
 21. https://leetcode.com/problems/house-robber/ - 198
+22. https://leetcode.com/problems/target-sum/ - 494
 
 ## 2d+ dp 
 1. https://leetcode.com/problems/maximal-square/ 
@@ -377,6 +381,7 @@
 10. https://leetcode.com/problems/pascals-triangle/ - 118
 11. https://leetcode.com/problems/read-n-characters-given-read4-ii-call-multiple-times/ - 158
 12. https://leetcode.com/problems/rotate-array/ - 189
+13. https://leetcode.com/problems/line-reflection/ - 356 
 
 
 # Tricky
